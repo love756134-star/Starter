@@ -1,102 +1,71 @@
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
-local Humanoid = Character:WaitForChild("Humanoid")
-local HRP = Character:WaitForChild("HumanoidRootPart")
-local Torso = Character:WaitForChild("Torso")
+local MAX_DISTANCE = 200
+local BLACK_DISTANCE = 30
 
-local RootJoint = HRP:WaitForChild("RootJoint")
-local Neck = Torso:WaitForChild("Neck")
-local RightShoulder = Torso:WaitForChild("Right Shoulder")
-local LeftShoulder = Torso:WaitForChild("Left Shoulder")
-local RightHip = Torso:WaitForChild("Right Hip")
-local LeftHip = Torso:WaitForChild("Left Hip")
+local highlights = {}
 
-local RootJointC0 = RootJoint.C0
-local NeckC0 = Neck.C0
-local RS_C0 = RightShoulder.C0
-local LS_C0 = LeftShoulder.C0
-local RH_C0 = RightHip.C0
-local LH_C0 = LeftHip.C0
+local function addHighlight(model)
+	if not model:FindFirstChild("Humanoid") then return end
+	if model == LocalPlayer.Character then return end
+	if highlights[model] then return end
 
-local RJ_Tilt = CFrame.new()
-local Neck_Tilt = CFrame.new()
-local RS_Tilt = CFrame.new()
-local LS_Tilt = CFrame.new()
-local RH_Tilt = CFrame.new()
-local LH_Tilt = CFrame.new()
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "ESPHighlight"
+	highlight.FillTransparency = 0.4
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = model
 
-local LERP = 0.145
-local DOT = 0.9
+	highlights[model] = highlight
+end
 
-RunService.Heartbeat:Connect(function()
-	local dir = HRP.CFrame:VectorToObjectSpace(Humanoid.MoveDirection)
-
-	-- ===============================
-	-- ? æ’¿∏∑Œ (±‚øÔ±‚ ¡¶∞≈)
-	-- ===============================
-	if dir:Dot(Vector3.new(0,0,-1)) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.new(), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.new(), LERP)
-		RS_Tilt = RS_Tilt:Lerp(CFrame.new(), LERP)
-		LS_Tilt = LS_Tilt:Lerp(CFrame.new(), LERP)
-		RH_Tilt = RH_Tilt:Lerp(CFrame.new(), LERP)
-		LH_Tilt = LH_Tilt:Lerp(CFrame.new(), LERP)
-
-		-- ===============================
-		-- ¢÷ æ’¿∏∑Œ + ø¿∏•¬ 
-		-- ===============================
-	elseif dir:Dot(Vector3.new(1,0,-1).Unit) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.Angles(0, 0, math.rad(-dir.X)*25), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.Angles(0, 0, math.rad(dir.X)*15), LERP)
-
-		-- ===============================
-		-- ¢ÿ æ’¿∏∑Œ + øﬁ¬ 
-		-- ===============================
-	elseif dir:Dot(Vector3.new(-1,0,-1).Unit) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.Angles(0, 0, math.rad(-dir.X)*25), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.Angles(0, 0, math.rad(dir.X)*15), LERP)
-
-		-- ===============================
-		-- °Ê ø¿∏•¬ 
-		-- ===============================
-	elseif dir:Dot(Vector3.new(1,0,0)) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.Angles(0,0,math.rad(-dir.X)*35), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.Angles(0,0,math.rad(dir.X)*35), LERP)
-
-		-- ===============================
-		-- °Á øﬁ¬ 
-		-- ===============================
-	elseif dir:Dot(Vector3.new(-1,0,0)) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.Angles(0,0,math.rad(-dir.X)*35), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.Angles(0,0,math.rad(dir.X)*35), LERP)
-
-		-- ===============================
-		-- °È µ⁄
-		-- ===============================
-	elseif dir:Dot(Vector3.new(0,0,1)) > DOT then
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.Angles(math.rad(-dir.Z)*10,0,0), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.Angles(math.rad(dir.Z)*10,0,0), LERP)
-
-		-- ===============================
-		-- ¡§¡ˆ
-		-- ===============================
-	else
-		RJ_Tilt = RJ_Tilt:Lerp(CFrame.new(), LERP)
-		Neck_Tilt = Neck_Tilt:Lerp(CFrame.new(), LERP)
-		RS_Tilt = RS_Tilt:Lerp(CFrame.new(), LERP)
-		LS_Tilt = LS_Tilt:Lerp(CFrame.new(), LERP)
-		RH_Tilt = RH_Tilt:Lerp(CFrame.new(), LERP)
-		LH_Tilt = LH_Tilt:Lerp(CFrame.new(), LERP)
+-- Í∏∞Ï°¥ Î™®Îç∏ Í≤ÄÏÇ¨
+for _, obj in pairs(workspace:GetDescendants()) do
+	if obj:IsA("Model") then
+		addHighlight(obj)
 	end
+end
 
-	RootJoint.C0 = RootJointC0 * RJ_Tilt
-	Neck.C0 = NeckC0 * Neck_Tilt
-	RightShoulder.C0 = RS_C0 * RS_Tilt
-	LeftShoulder.C0 = LS_C0 * LS_Tilt
-	RightHip.C0 = RH_C0 * RH_Tilt
-	LeftHip.C0 = LH_C0 * LH_Tilt
+-- ÏÉà Î™®Îç∏ Í≤ÄÏÇ¨
+workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("Model") then
+		task.wait()
+		addHighlight(obj)
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	local char = LocalPlayer.Character
+	if not char then return end
+
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	for model, highlight in pairs(highlights) do
+		if model.Parent then
+			local targetRoot = model:FindFirstChild("HumanoidRootPart")
+			if targetRoot then
+
+				local dist = (root.Position - targetRoot.Position).Magnitude
+
+				-- 30 Ïä§ÌÑ∞Îìú Ïù¥ÎÇ¥ ‚Üí Í≤ÄÏ†ï
+				if dist <= BLACK_DISTANCE then
+					local color = Color3.new(0.576471, 0.576471, 0.576471)
+					highlight.FillColor = color
+					highlight.OutlineColor = color
+				else
+					local t = math.clamp(dist / MAX_DISTANCE, 0, 1)
+					local color = Color3.new(1 - t, 0, t)
+
+					highlight.FillColor = color
+					highlight.OutlineColor = color
+				end
+
+			end
+		end
+	end
 end)
